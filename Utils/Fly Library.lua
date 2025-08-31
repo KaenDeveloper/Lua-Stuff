@@ -115,17 +115,10 @@ function FlyLibrary:Update(config)
     return self
 end
 
-function FlyLibrary:SetEnabled(enabled)
-    self.isEnabled = enabled
-    if not enabled then
-        self:Stop()
-    end
-    return self
-end
-
 function FlyLibrary:Start()
     if not self.character or not self.humanoid or not self.rootPart or not self.isEnabled then return self end
     
+    self.isEnabled = true
     self.isFlying = true
     self.humanoid.AutoRotate = false
     self:_createMovers()
@@ -134,6 +127,7 @@ end
 
 function FlyLibrary:Stop()
     self.isFlying = false
+    self.isEnabled = false
     if self.humanoid then
         self.humanoid.AutoRotate = true
         self.humanoid.PlatformStand = false
