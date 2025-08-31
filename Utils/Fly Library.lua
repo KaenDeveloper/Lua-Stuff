@@ -8,7 +8,7 @@ FlyLibrary.__index = FlyLibrary
 function FlyLibrary.new()
     local self = setmetatable({}, FlyLibrary)
     self.Speed = 50
-    self.ToggleKey = Enum.KeyCode.F
+    self.ToggleKey = nil
     self.isFlying = false
     self.player = Players.LocalPlayer
     self.character = nil
@@ -24,7 +24,7 @@ end
 function FlyLibrary:_init()
     self.connections[1] = UserInputService.InputBegan:Connect(function(input, gp)
         if UserInputService:GetFocusedTextBox() then return end 
-        if input.KeyCode == self.ToggleKey then
+        if self.ToggleKey and input.KeyCode == self.ToggleKey then
             self:Toggle()
         end
     end)
