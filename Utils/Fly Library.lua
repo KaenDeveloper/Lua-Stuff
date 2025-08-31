@@ -23,7 +23,7 @@ end
 function FlyLibrary:_init()
     self.connections[1] = LocalServices.inputService.InputBegan:Connect(function(input, gp)
         if gp or LocalServices.inputService:GetFocusedTextBox() then return end
-        if input.KeyCode == self.ToggleKey and self.isEnabled then -- Only work if enabled
+        if input.KeyCode == self.ToggleKey and self.isEnabled then
             self:Toggle()
         end
     end)
@@ -155,3 +155,4 @@ function FlyLibrary:Destroy()
 end
 
 return FlyLibrary.new()
+
