@@ -1,3 +1,7 @@
+local Players = cloneref(game:GetService("Players"))
+local UserInputService = cloneref(game:GetService("UserInputService"))
+local RunService = cloneref(game:GetService("RunService"))
+
 local FlyLibrary = {}
 FlyLibrary.__index = FlyLibrary
 
@@ -8,7 +12,7 @@ function FlyLibrary.new()
     self.ToggleKey = Enum.KeyCode.F
     self.isFlying = false
     self.isEnabled = false
-    self.player = LocalServices.Players.LocalPlayer
+    self.player = Players.LocalPlayer
     self.character = nil
     self.humanoid = nil
     self.rootPart = nil
@@ -21,14 +25,14 @@ function FlyLibrary.new()
 end
 
 function FlyLibrary:_init()
-    self.connections[1] = LocalServices.inputService.InputBegan:Connect(function(input, gp)
-        if gp or LocalServices.inputService:GetFocusedTextBox() then return end
+    self.connections[1] = UserInputService.InputBegan:Connect(function(input, gp)
+        if gp or UserInputService:GetFocusedTextBox() then return end
         if input.KeyCode == self.ToggleKey and self.isEnabled then
             self:Toggle()
         end
     end)
     
-    self.connections[2] = LocalServices.RunService.RenderStepped:Connect(function()
+    self.connections[2] = RunService.RenderStepped:Connect(function()
         self:_update()
     end)
     
@@ -83,18 +87,18 @@ function FlyLibrary:_update()
     local cam = workspace.CurrentCamera
     self.gyro.CFrame = cam.CFrame
     
-    if LocalServices.inputService:GetFocusedTextBox() then
+    if UserInputService:GetFocusedTextBox() then
         self.velocity.Velocity = Vector3.zero
         return
     end
     
     local dir = Vector3.zero
-    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.W) then dir = dir + cam.CFrame.LookVector end
-    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.S) then dir = dir - cam.CFrame.LookVector end
-    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.A) then dir = dir - cam.CFrame.RightVector end
-    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.D) then dir = dir + cam.CFrame.RightVector end
-    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.Space) then dir = dir + Vector3.new(0, 1, 0) end
-    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.LeftShift) then dir = dir - Vector3.new(0, 1, 0) end
+    if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir = dir + cam.CFrame.LookVector end
+    if UserInputService:IsKeyDown(Enum.KeyCode.S) then dir = dir - cam.CFrame.LookVector end
+    if UserInputService:IsKeyDown(Enum.KeyCode.A) then dir = dir - cam.CFrame.RightVector end
+    if UserInputService:IsKeyDown(Enum.KeyCode.D) then dir = dir + cam.CFrame.RightVector end
+    if UserInputService:IsKeyDown(Enum.KeyCode.Space) then dir = dir + Vector3.new(0, 1, 0) end
+    if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then dir = dir - Vector3.new(0, 1, 0) end
     
     self.velocity.Velocity = dir.Magnitude > 0 and dir.Unit * self.Speed or Vector3.zero
 end
@@ -155,4 +159,3 @@ function FlyLibrary:Destroy()
 end
 
 return FlyLibrary.new()
-
