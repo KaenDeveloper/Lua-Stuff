@@ -25,7 +25,7 @@ end
 function FlyLibrary:_init()
     self.connections[1] = UserInputService.InputBegan:Connect(function(input, gp)
         if gp or UserInputService:GetFocusedTextBox() then return end
-        if input.KeyCode == self.ToggleKey and self.isEnabled then
+        if input.KeyCode == self.ToggleKey then
             self:Toggle()
         end
     end)
