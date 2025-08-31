@@ -1,7 +1,3 @@
-local Players = cloneref(game:GetService("Players"))
-local UserInputService = cloneref(game:GetService("UserInputService"))
-local RunService = cloneref(game:GetService("RunService"))
-
 local FlyLibrary = {}
 FlyLibrary.__index = FlyLibrary
 
@@ -11,7 +7,8 @@ function FlyLibrary.new()
     self.Speed = 50
     self.ToggleKey = Enum.KeyCode.F
     self.isFlying = false
-    self.player = Players.LocalPlayer
+    self.isEnabled = false
+    self.player = LocalServices.Players.LocalPlayer
     self.character = nil
     self.humanoid = nil
     self.rootPart = nil
@@ -24,14 +21,14 @@ function FlyLibrary.new()
 end
 
 function FlyLibrary:_init()
-    self.connections[1] = UserInputService.InputBegan:Connect(function(input, gp)
-        if gp or UserInputService:GetFocusedTextBox() then return end
-        if input.KeyCode == self.ToggleKey then
+    self.connections[1] = LocalServices.inputService.InputBegan:Connect(function(input, gp)
+        if gp or LocalServices.inputService:GetFocusedTextBox() then return end
+        if input.KeyCode == self.ToggleKey and self.isEnabled then -- Only work if enabled
             self:Toggle()
         end
     end)
     
-    self.connections[2] = RunService.RenderStepped:Connect(function()
+    self.connections[2] = LocalServices.RunService.RenderStepped:Connect(function()
         self:_update()
     end)
     
@@ -73,7 +70,7 @@ function FlyLibrary:_destroyMovers()
 end
 
 function FlyLibrary:_update()
-    if not self.isFlying or not self.character or not self.humanoid or not self.rootPart then
+    if not self.isFlying or not self.isEnabled or not self.character or not self.humanoid or not self.rootPart then
         return
     end
     
@@ -86,30 +83,44 @@ function FlyLibrary:_update()
     local cam = workspace.CurrentCamera
     self.gyro.CFrame = cam.CFrame
     
-    if UserInputService:GetFocusedTextBox() then
+    if LocalServices.inputService:GetFocusedTextBox() then
         self.velocity.Velocity = Vector3.zero
         return
     end
     
     local dir = Vector3.zero
-    if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir = dir + cam.CFrame.LookVector end
-    if UserInputService:IsKeyDown(Enum.KeyCode.S) then dir = dir - cam.CFrame.LookVector end
-    if UserInputService:IsKeyDown(Enum.KeyCode.A) then dir = dir - cam.CFrame.RightVector end
-    if UserInputService:IsKeyDown(Enum.KeyCode.D) then dir = dir + cam.CFrame.RightVector end
-    if UserInputService:IsKeyDown(Enum.KeyCode.Space) then dir = dir + Vector3.new(0, 1, 0) end
-    if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then dir = dir - Vector3.new(0, 1, 0) end
+    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.W) then dir = dir + cam.CFrame.LookVector end
+    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.S) then dir = dir - cam.CFrame.LookVector end
+    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.A) then dir = dir - cam.CFrame.RightVector end
+    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.D) then dir = dir + cam.CFrame.RightVector end
+    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.Space) then dir = dir + Vector3.new(0, 1, 0) end
+    if LocalServices.inputService:IsKeyDown(Enum.KeyCode.LeftShift) then dir = dir - Vector3.new(0, 1, 0) end
     
     self.velocity.Velocity = dir.Magnitude > 0 and dir.Unit * self.Speed or Vector3.zero
 end
 
 function FlyLibrary:Update(config)
     if config.Speed then self.Speed = config.Speed end
-    if config.ToggleKey then self.ToggleKey = config.ToggleKey end
+    if config.ToggleKey then 
+        if type(config.ToggleKey) == "string" then
+            self.ToggleKey = Enum.KeyCode[config.ToggleKey]
+        else
+            self.ToggleKey = config.ToggleKey
+        end
+    end
+    return self
+end
+
+function FlyLibrary:SetEnabled(enabled)
+    self.isEnabled = enabled
+    if not enabled then
+        self:Stop()
+    end
     return self
 end
 
 function FlyLibrary:Start()
-    if not self.character or not self.humanoid or not self.rootPart then return self end
+    if not self.character or not self.humanoid or not self.rootPart or not self.isEnabled then return self end
     
     self.isFlying = true
     self.humanoid.AutoRotate = false
