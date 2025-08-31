@@ -1,13 +1,12 @@
-local Players = cloneref(game:GetService("Players"))
-local UserInputService = cloneref(game:GetService("UserInputService"))
-local RunService = cloneref(game:GetService("RunService"))
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 local FlyLibrary = {}
 FlyLibrary.__index = FlyLibrary
 
 function FlyLibrary.new()
     local self = setmetatable({}, FlyLibrary)
-    
     self.Speed = 50
     self.ToggleKey = Enum.KeyCode.F
     self.isFlying = false
@@ -19,8 +18,7 @@ function FlyLibrary.new()
     self.gyro = nil
     self.velocity = nil
     self.connections = {}
-    
-    self:_init()
+    self:_init() 
     return self
 end
 
@@ -31,7 +29,7 @@ function FlyLibrary:_init()
             self:Toggle()
         end
     end)
-    
+
     self.connections[2] = RunService.RenderStepped:Connect(function()
         self:_update()
     end)
@@ -61,7 +59,7 @@ function FlyLibrary:_createMovers()
     self.gyro.P = 3000
     self.gyro.D = 500
     self.gyro.Parent = self.rootPart
-    
+
     self.velocity = Instance.new("BodyVelocity")
     self.velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     self.velocity.Velocity = Vector3.zero
@@ -74,9 +72,7 @@ function FlyLibrary:_destroyMovers()
 end
 
 function FlyLibrary:_update()
-    if not self.isFlying or not self.isEnabled or not self.character or not self.humanoid or not self.rootPart then
-        return
-    end
+    if not self.isFlying or not self.isEnabled or not self.character or not self.humanoid or not self.rootPart then return end
     
     self.humanoid.PlatformStand = true
     
@@ -86,12 +82,12 @@ function FlyLibrary:_update()
     
     local cam = workspace.CurrentCamera
     self.gyro.CFrame = cam.CFrame
-    
+
     if UserInputService:GetFocusedTextBox() then
         self.velocity.Velocity = Vector3.zero
         return
     end
-    
+
     local dir = Vector3.zero
     if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir = dir + cam.CFrame.LookVector end
     if UserInputService:IsKeyDown(Enum.KeyCode.S) then dir = dir - cam.CFrame.LookVector end
@@ -105,7 +101,7 @@ end
 
 function FlyLibrary:Update(config)
     if config.Speed then self.Speed = config.Speed end
-    if config.ToggleKey then 
+    if config.ToggleKey then
         if type(config.ToggleKey) == "string" then
             self.ToggleKey = Enum.KeyCode[config.ToggleKey]
         else
@@ -116,12 +112,12 @@ function FlyLibrary:Update(config)
 end
 
 function FlyLibrary:Start()
-    if not self.character or not self.humanoid or not self.rootPart or not self.isEnabled then return self end
-    
+    if not self.character or not self.humanoid or not self.rootPart then return self end
     self.isEnabled = true
     self.isFlying = true
     self.humanoid.AutoRotate = false
     self:_createMovers()
+    print("Fly script started.")
     return self
 end
 
@@ -133,6 +129,7 @@ function FlyLibrary:Stop()
         self.humanoid.PlatformStand = false
     end
     self:_destroyMovers()
+    print("Fly script stopped.")
     return self
 end
 
@@ -150,6 +147,7 @@ function FlyLibrary:Destroy()
     for _, conn in pairs(self.connections) do
         if conn then conn:Disconnect() end
     end
+    self.connections = {}
 end
 
 return FlyLibrary.new()
