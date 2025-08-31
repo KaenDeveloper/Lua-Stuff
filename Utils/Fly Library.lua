@@ -10,7 +10,6 @@ function FlyLibrary.new()
     self.Speed = 50
     self.ToggleKey = Enum.KeyCode.F
     self.isFlying = false
-    self.isEnabled = false
     self.player = Players.LocalPlayer
     self.character = nil
     self.humanoid = nil
@@ -72,7 +71,7 @@ function FlyLibrary:_destroyMovers()
 end
 
 function FlyLibrary:_update()
-    if not self.isFlying or not self.isEnabled or not self.character or not self.humanoid or not self.rootPart then return end
+    if not self.isFlying or not self.character or not self.humanoid or not self.rootPart then return end
     
     self.humanoid.PlatformStand = true
     
@@ -126,7 +125,6 @@ end
 
 function FlyLibrary:Start()
     if not self.character or not self.humanoid or not self.rootPart then return self end
-    self.isEnabled = true
     self.isFlying = true
     self.humanoid.AutoRotate = false
     self:_createMovers()
@@ -136,7 +134,6 @@ end
 
 function FlyLibrary:Stop()
     self.isFlying = false
-    self.isEnabled = false
     if self.humanoid then
         self.humanoid.AutoRotate = true
         self.humanoid.PlatformStand = false
