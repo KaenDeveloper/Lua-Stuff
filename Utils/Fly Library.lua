@@ -100,14 +100,27 @@ function FlyLibrary:_update()
 end
 
 function FlyLibrary:Update(config)
-    if config.Speed then self.Speed = config.Speed end
+    if config.Speed then
+        self.Speed = config.Speed
+    end
+
     if config.ToggleKey then
-        if type(config.ToggleKey) == "string" then
-            self.ToggleKey = Enum.KeyCode[config.ToggleKey]
+        local newKey = config.ToggleKey
+        
+        if type(newKey) == "string" then
+            local keyName = newKey:lower()
+            keyName = keyName:sub(1, 1):upper() .. keyName:sub(2)
+            newKey = Enum.KeyCode[keyName]
+        end
+
+        if newKey and typeof(newKey) == "EnumItem" and newKey.EnumType == Enum.KeyCode then
+            self.ToggleKey = newKey
+            print("Toggle key updated to: " .. self.ToggleKey.Name)
         else
-            self.ToggleKey = config.ToggleKey
+            warn("Attempted to set an invalid toggle key:", config.ToggleKey)
         end
     end
+
     return self
 end
 
